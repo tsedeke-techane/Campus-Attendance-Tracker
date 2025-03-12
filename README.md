@@ -74,5 +74,5 @@ The system will provide **teachers** with the ability to create classes, generat
 ### **Steps**
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/TsedekeT/Campus_Attendance_Tracker.git
+   git clone https://github.com/tsedeke-techane/Campus_Attendance_Tracker.git
    cd campus-attendance-tracker
