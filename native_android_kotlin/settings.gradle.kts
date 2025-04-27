@@ -19,5 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "native_android_kotlin"
+rootProject.name = "AttendanceTracker"
 include(":app")
+ 
