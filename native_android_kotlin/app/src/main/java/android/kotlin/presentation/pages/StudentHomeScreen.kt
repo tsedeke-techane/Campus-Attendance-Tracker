@@ -1,5 +1,6 @@
 package com.attendance.attendancetracker.presentation.pages
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -9,7 +10,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,60 +22,74 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.attendance.attendancetracker.R
+import com.attendance.attendancetracker.presentation.viewmodels.DashboardViewModel
 import com.attendance.attendancetracker.ui.theme.Typography
 
 @Composable
 fun StudentHomeScreen(
     studentName: String = "Anat",
+    authToken: String,
+    dashboardViewModel: DashboardViewModel = hiltViewModel(),
     onCourseClick: (String) -> Unit = {},
     onScanClick: (String) -> Unit = {}
 ) {
+    LaunchedEffect(key1 = authToken) {
+        if (authToken.isNotBlank()) {
+            Log.d("StudentHomeScreen", "AuthToken received, loading dashboard.")
+            dashboardViewModel.loadDashboard(authToken)
+        } else {
+            Log.w("StudentHomeScreen", "AuthToken is blank. Cannot load dashboard.")
+        }
+    }
+
+    // Observe LiveData states
+    val classes by dashboardViewModel.classes.observeAsState(initial = emptyList())
+    val isLoading by dashboardViewModel.isLoading.observeAsState(initial = false)
+    val error by dashboardViewModel.error.observeAsState(initial = null)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F5F5)) // Lighter background to match image
+            .background(Color(0xFFF5F5F5))
     ) {
-        // Header with logo and menu button
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF001E2F))
                 .padding(16.dp)
         ) {
-            // Logo
             Row(
                 modifier = Modifier.align(Alignment.CenterStart),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.scanin_logo_removebg_preview__1__2_layerstyle__1_),
                     contentDescription = "SCANIN Logo",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(52.dp)
                 )
             }
 
-            // Menu button
             IconButton(
                 onClick = { /* Open menu */ },
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.logeout),
                     contentDescription = "Menu",
                     tint = Color.White
                 )
             }
         }
 
-        // Main content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Greeting
             Text(
                 text = "Hi $studentName,",
                 style = Typography.titleLarge.copy(
@@ -80,7 +99,15 @@ fun StudentHomeScreen(
             )
 
             Text(
-                text = "Ready To Attend Today?",
+                text = "Ready To Attend",
+                style = Typography.titleLarge.copy(
+                    color = Color(0xFF001E2F),
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Text(
+                text = "Today?",
                 style = Typography.titleLarge.copy(
                     color = Color(0xFF001E2F),
                     fontWeight = FontWeight.Bold
@@ -88,78 +115,44 @@ fun StudentHomeScreen(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Course grid
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CourseCard(
-                    title = "Cyber Security",
-                    teacher = "Senayit Demisse",
-                    modifier = Modifier.weight(1f),
-                    onCardClick = { onCourseClick("Cyber Security") },
-                    onScanClick = { onScanClick("Cyber Security") }
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else if (error != null) {
+                Text(
+                    text = "Error loading dashboard: $error",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally)
                 )
-
-                CourseCard(
-                    title = "Operating System",
-                    teacher = "Eshetu Demisse",
-                    modifier = Modifier.weight(1f),
-                    onCardClick = { onCourseClick("Operating System") },
-                    onScanClick = { onScanClick("Operating System") }
+            } else if (classes.isEmpty() && !isLoading) {
+                Text(
+                    text = "No courses available for you today.",
+                    modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally)
                 )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CourseCard(
-                    title = "Mobile",
-                    teacher = "Sara Mohammed",
-                    modifier = Modifier.weight(1f),
-                    onCardClick = { onCourseClick("Mobile") },
-                    onScanClick = { onScanClick("Mobile") }
-                )
-
-                CourseCard(
-                    title = "Artificial Intelligence",
-                    teacher = "Manyazewal Eshetu",
-                    modifier = Modifier.weight(1f),
-                    onCardClick = { onCourseClick("Artificial Intelligence") },
-                    onScanClick = { onScanClick("Artificial Intelligence") }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CourseCard(
-                    title = "Graphics",
-                    teacher = "Abebe Tessema",
-                    modifier = Modifier.weight(1f),
-                    onCardClick = { onCourseClick("Graphics") },
-                    onScanClick = { onScanClick("Graphics") }
-                )
-
-                CourseCard(
-                    title = "Operating System",
-                    teacher = "Teshome Chane",
-                    modifier = Modifier.weight(1f),
-                    onCardClick = { onCourseClick("Operating System 2") },
-                    onScanClick = { onScanClick("Operating System 2") }
-                )
+            } else {
+                classes.chunked(2).forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        rowItems.forEach { classItem ->
+                            CourseCard(
+                                title = classItem.className,
+                                teacher = classItem.teacherId,
+                                modifier = Modifier.weight(1f),
+                                onCardClick = { onCourseClick(classItem.id) },
+                                onScanClick = { onScanClick(classItem.id) }
+                            )
+                        }
+                        if (rowItems.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f).padding(8.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Main scan button
             Button(
                 onClick = { /* Global scan */ },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF001E2F)),
@@ -190,73 +183,74 @@ fun CourseCard(
     onScanClick: () -> Unit = {}
 ) {
     Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF001E2F))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(12.dp)
         ) {
             Text(
                 text = title,
-                style = Typography.titleMedium.copy(color = Color.White),
+                style = Typography.labelLarge.copy(color = Color.White),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
             Text(
                 text = "Teacher:",
-                style = Typography.bodySmall.copy(color = Color.White.copy(alpha = 0.7f))
+                style = Typography.labelSmall.copy(color = Color.White.copy(alpha = 0.7f))
             )
 
             Text(
                 text = teacher,
-                style = Typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.9f)),
-                modifier = Modifier.padding(bottom = 16.dp)
+                style = Typography.bodySmall.copy(color = Color.White.copy(alpha = 0.9f)),
+                modifier = Modifier.padding(bottom = 12.dp)
             )
-
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = { onCardClick() },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
-                    ),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
+                    onClick = onCardClick,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                    border = BorderStroke(1.dp, Color.White),
                     shape = RoundedCornerShape(50),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 2.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        painter = painterResource(id = R.drawable.dash),
                         contentDescription = "Dashboard",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(10.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Dashboard", style = Typography.bodySmall)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "Dashboard",
+                        style = Typography.bodySmall.copy(fontSize = 8.sp)
+                    )
                 }
 
                 OutlinedButton(
-                    onClick = { onScanClick() },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
-                    ),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
+                    onClick = onScanClick,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                    border = BorderStroke(1.dp, Color.White),
                     shape = RoundedCornerShape(50),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 2.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.qr),
                         contentDescription = "Scan",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(12.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Scan", style = Typography.bodySmall)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "Scan",
+                        style = Typography.bodySmall.copy(fontSize = 12.sp)
+                    )
                 }
             }
         }
@@ -266,5 +260,5 @@ fun CourseCard(
 @Preview(showBackground = true)
 @Composable
 fun StudentHomeScreenPreview() {
-    StudentHomeScreen()
+    StudentHomeScreen(authToken = "dummy_token_for_preview")
 }
