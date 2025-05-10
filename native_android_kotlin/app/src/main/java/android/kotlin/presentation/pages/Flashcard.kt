@@ -56,7 +56,7 @@ fun OnboardingScreen(
 
             // Logo in the center
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground), // Replace with your logo resource
+                painter = painterResource(id = R.drawable.scanin_logo_removebg_preview__1__2_layerstyle__1_), // Replace with your logo resource
                 contentDescription = "Logo",
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -94,7 +94,7 @@ fun OnboardingScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF001E2F)),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(24.dp)
+                .padding(24.dp, bottom = 100.dp)
                 .fillMaxWidth(0.6f)
                 .height(50.dp)
         ) {
