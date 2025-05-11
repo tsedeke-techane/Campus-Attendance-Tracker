@@ -14,15 +14,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.attendance.attendancetracker.R
 import com.attendance.attendancetracker.data.models.Student
+//import com.attendance.attendancetracker.ui.theme.AttendanceTrackerTheme
 import com.attendance.attendancetracker.ui.theme.Typography
 
 @Composable
 fun AttendanceSummaryScreen(
     sectionName: String = "Section 1",
+    authToken: String,
     totalStudents: Int = 50,
     studentList: List<Student> = listOf(
         Student("Tsedeke Techane", "UGR/1234/15", 40),
@@ -41,7 +44,7 @@ fun AttendanceSummaryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFECECEC))
+            .background(Color(0xFF121212)) // Dark background
             .verticalScroll(rememberScrollState())
     ) {
         // Header
@@ -67,13 +70,13 @@ fun AttendanceSummaryScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.arrow_ios_back_svgrepo_com),
                         contentDescription = "Back",
-                        tint = Color(0xFF001E2F)
+                        tint = Color.White
                     )
                 }
                 Text(
                     text = "$sectionName\nTotal: $totalStudents Students",
                     style = Typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color(0xFF001E2F)
+                    color = Color.White
                 )
             }
 
@@ -83,7 +86,8 @@ fun AttendanceSummaryScreen(
             studentList.forEachIndexed { index, student ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("${index + 1}. ${student.name}", fontWeight = FontWeight.SemiBold)
@@ -94,25 +98,25 @@ fun AttendanceSummaryScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Input fields for new student
+            // Add Class Card (dark background with white text)
             Card(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(24.dp),
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF001E2F))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "${studentList.size + 1}.", fontWeight = FontWeight.Bold)
+                    Text(text = "${studentList.size + 1}.", fontWeight = FontWeight.Bold, color = Color.White)
+                    Spacer(modifier = Modifier.height(4.dp))
                     BasicTextField(
                         value = newName,
                         onValueChange = { newName = it },
-                        textStyle = TextStyle(fontSize = 14.sp),
+                        textStyle = TextStyle(fontSize = 14.sp, color = Color.White),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
-                            .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
-                            .padding(12.dp),
+                            .background(Color.Transparent)
+                            .padding(vertical = 4.dp),
                         decorationBox = { innerTextField ->
-                            if (newName.isEmpty()) Text("Name of the student", color = Color.Gray)
+                            if (newName.isEmpty()) Text("Name of the student", color = Color.LightGray)
                             innerTextField()
                         }
                     )
@@ -120,13 +124,13 @@ fun AttendanceSummaryScreen(
                     BasicTextField(
                         value = newId,
                         onValueChange = { newId = it },
-                        textStyle = TextStyle(fontSize = 14.sp),
+                        textStyle = TextStyle(fontSize = 14.sp, color = Color.White),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
-                            .padding(12.dp),
+                            .background(Color.Transparent)
+                            .padding(vertical = 4.dp),
                         decorationBox = { innerTextField ->
-                            if (newId.isEmpty()) Text("ID", color = Color.Gray)
+                            if (newId.isEmpty()) Text("ID", color = Color.LightGray)
                             innerTextField()
                         }
                     )
@@ -140,9 +144,10 @@ fun AttendanceSummaryScreen(
                             }
                         },
                         modifier = Modifier.align(Alignment.End),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF001E2F))
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                     ) {
-                        Text("+ Add")
+                        Text("+ Add", color = Color(0xFF001E2F))
                     }
                 }
             }
@@ -161,4 +166,10 @@ fun AttendanceSummaryScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAttendanceSummaryScreen() {
+    AttendanceSummaryScreen(authToken = "dummy_token_for_preview")
 }
