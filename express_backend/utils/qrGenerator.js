@@ -1,6 +1,5 @@
 import QRCode from "qrcode";
 
-// Generate QR code as data URL
 export const generateQRCode = async (data) => {
   try {
     const qrCodeDataURL = await QRCode.toDataURL(data, {
@@ -17,7 +16,6 @@ export const generateQRCode = async (data) => {
   }
 };
 
-// Generate QR code as buffer
 export const generateQRCodeBuffer = async (data) => {
   try {
     const qrCodeBuffer = await QRCode.toBuffer(data, {
