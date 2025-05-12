@@ -27,39 +27,39 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AuthApi {
-    @POST("auth/register")
+    @POST("api/auth/register")
     suspend fun register(@Body request: SignupRequestDto): AuthResponseDto
 
-    @POST("auth/login")
+    @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequestDto): AuthResponseDto
 
-    @POST("auth/logout")
+    @POST("api/auth/logout")
     suspend fun logout(@Body request: LogoutRequestDto): LogoutResponseDto
 
-    @GET("/class/Dashboard")
+    @GET("class/Dashboard")
     suspend fun getDashboardClasses(
         @Header("Authorization") token: String
     ): Response<DashboardResponse>
 
-    @POST("http://10.0.2.2:1000/teacher/create-class")
+    @POST("teacher/create-class")
     suspend fun createClass(
         @Body classRequest: ClassRequest,
         @Header("Authorization") token: String
     ): Response<CreateClassResponse>
 
-    @DELETE("http://10.0.2.2:1000/teacher/delete-class/{classId}")
+    @DELETE("teacher/delete-class/{classId}")
     suspend fun deleteClass(
         @Path("classId") classId: String,
         @Header("Authorization") token: String
     ): Response<DeleteClassResponse>
 
-    @GET("/attendance/class/{classId}/history")
+    @GET("attendance/class/{classId}/history")
     suspend fun getAttendanceHistory(
         @Path("classId") classId: String,
         @Header("Authorization") token: String
     ): Response<AttendanceHistoryResponse>
 
-    @GET("/attendance/history/class/{classId}")
+    @GET("attendance/history/class/{classId}")
     suspend fun getStudentAttendanceHistory(
         @Path("classId") classId: String,
         @Header("Authorization") token: String
@@ -71,14 +71,14 @@ interface AuthApi {
         @Header("Authorization") token: String
     ): Response<AttendanceScanResponse>
     
-    @POST("/teacher/class/{classId}/students")
+    @POST("teacher/class/{classId}/students")
     suspend fun addStudentToClass(
         @Path("classId") classId: String,
         @Body request: AddStudentRequest,
         @Header("Authorization") token: String
     ): Response<AddStudentResponse>
 
-    @POST("/attendance/generate")
+    @POST("attendance/generate")
     suspend fun generateQrCode(
         @Body request: GenerateQrRequest,
         @Header("Authorization") token: String
